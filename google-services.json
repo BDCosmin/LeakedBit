@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "864027322451",
+    "firebase_url": "https://leakedbit-default-rtdb.firebaseio.com",
+    "project_id": "leakedbit",
+    "storage_bucket": "leakedbit.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:864027322451:android:542cc359e801d64f653ea6",
+        "android_client_info": {
+          "package_name": "com.bcd.leakedbit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2fKxzs4jdainImtxg1jSAiNPaz4lHU34"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
