@@ -1,6 +1,8 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAuth, initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import { getDatabase } from 'firebase/database';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Your Firebase configuration from Firebase Console
 const firebaseConfig = {
   apiKey: "AIzaSyC2fKxzs4jdainImtxg1jSAiNPaz4lHU34",
   authDomain: "leakedbit.firebaseapp.com",
@@ -10,12 +12,21 @@ const firebaseConfig = {
   appId: "1:864027322451:android:542cc359e801d64f653ea6",
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase app, auth, and database
+let app;
+let auth;
+let database; // Add the database variable here
 
-// Initialize services
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+if (!getApps().length) {
+  app = initializeApp(firebaseConfig); // Initialize the app if it doesn't exist
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+  database = getDatabase(app); // Initialize the Realtime Database
+} else {
+  app = getApp(); // Use the already initialized app
+  auth = getAuth(app); // Get the auth instance
+  database = getDatabase(app); // Initialize the Realtime Database
+}
 
-export { auth, db, storage };
+export { auth, database };
