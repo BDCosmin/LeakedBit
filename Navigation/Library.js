@@ -1,17 +1,17 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, Alert, Easing, Animated, Image, TouchableWithoutFeedback, Keyboard, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Animated, Easing, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
 import { auth } from '../firebase';
-import { ref, child, get } from 'firebase/database'; // Import Realtime Database methods
-import { database } from '../firebase'; // Adjust the path according to your file structure
+import { ref, child, get } from 'firebase/database';
+import CreateProject from '../Upload/CreateProject';
 
 export default function Library() {
 
-  const [name, setArtistName] = useState();
-  const [email, setEmail] = useState();
+  const [name, setArtistName] = useState('Artist Name');
+  const [CreateProjectModalVisible, setCreateProjectModalVisible] = useState(false);
+  const [projectTitle, setprojectTitle] = useState('');
 
   const animatedValue = useRef(new Animated.Value(0)).current;
-  // Interpolate the animated value to transition between colors
   const animatedColor = animatedValue.interpolate({
     inputRange: [0, 1],
     outputRange: ['white', '#E3651D'],
@@ -23,13 +23,13 @@ export default function Library() {
         Animated.sequence([
           Animated.timing(animatedValue, {
             toValue: 1,
-            duration: 3000, // 3 seconds to go from white to orange
+            duration: 3000,
             easing: Easing.linear,
             useNativeDriver: false,
           }),
           Animated.timing(animatedValue, {
             toValue: 0,
-            duration: 3000, // 3 seconds to go back to white
+            duration: 3000,
             easing: Easing.linear,
             useNativeDriver: false,
           }),
@@ -40,28 +40,49 @@ export default function Library() {
     animateColor();
   }, [animatedValue]);
 
+  const handleProjectSubmit = (projectData) => {
+    // Handle the project data, for now, just log it
+    console.log('New project created:', projectData);
+  };
+
   return (
     <View style={styles.container}>
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.content}>
-        <View style={styles.topNav}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View style={styles.content}>
+          <View style={styles.topNav}>
             <Animated.Text style={[styles.maintext, { color: animatedColor }]}>LeakedBit</Animated.Text>
             <Text style={{color: '#fff', fontSize: 10, alignSelf: 'center'}}>Released. Unreleased.</Text>
-        
-        </View>     
+          </View>     
 
-        {/* Horizontal dividing line */}
-        <View style={styles.divider} />   
+          <View style={styles.divider} />   
 
-        <ScrollView>
+          <View style={styles.controlSection}>
             <TouchableOpacity style={styles.uploadButton}>
-                <Text style={styles.textUploadButton}>Upload +</Text>
+              <Text style={styles.textUploadButton}>Upload +</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.newProjButton} onPress={() => setCreateProjectModalVisible(true)}>
+              <Text style={styles.textUploadButton}>New project +</Text>
             </TouchableOpacity> 
-        </ScrollView>
+          </View>
 
-      </View>
+          <View style={styles.divider} />  
+
+          <ScrollView>
+            {/* List of Projects or other content goes here */}
+          </ScrollView>
+
+        </View>
       </TouchableWithoutFeedback>
-     
+
+      <CreateProject 
+        CreateProjectModalVisible={CreateProjectModalVisible} 
+        setCreateProjectModalVisible={setCreateProjectModalVisible} 
+        artistName={name}
+        projectTitle={projectTitle} 
+        setprojectTitle={setprojectTitle}
+        onSubmit={handleProjectSubmit}
+      />
+
       <StatusBar style="auto" />
     </View>
   );
@@ -94,7 +115,7 @@ const styles = StyleSheet.create({
     height: 1, // Height of the line
     width: '80%', // Width of the line
     backgroundColor: 'rgba(204, 204, 204, 0.30)', // Color of the line
-    marginVertical: 20, // Space above and below the line
+    marginVertical: 10, // Space above and below the line
     alignSelf: 'center',
     marginTop: 10
   },
@@ -116,11 +137,25 @@ const styles = StyleSheet.create({
     marginLeft: 65,
     marginRight: 65
   },
+  controlSection: {
+    flexDirection: 'row', 
+    alignSelf: 'center',
+    width: '80%',
+    justifyContent: 'center'
+  },
   uploadButton: {
     width: 90,
     height: 35,
     backgroundColor: '#495669',
-    marginLeft: 35,
+    alignItems: 'center',
+    paddingTop: 7,
+    borderRadius: 2,
+    marginRight: 10
+  },
+  newProjButton: {
+    width: 120,
+    height: 35,
+    backgroundColor: '#495669',
     alignItems: 'center',
     paddingTop: 7,
     borderRadius: 2
