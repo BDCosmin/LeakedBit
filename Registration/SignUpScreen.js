@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: 'center',
-    paddingTop: 135
+    paddingTop: 160
   },
   maintext: {
     color: '#fff',
@@ -238,8 +238,9 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     borderWidth: 1,
     borderRadius: 10, 
+    borderColor: 'rgba(255, 255, 255, 0.5)',
     justifyContent: 'center',
-    marginTop: 50,
+    marginTop: 30,
     paddingTop: 20,
     paddingBottom: 30
   },
@@ -266,7 +267,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#fff',
     height: 20,
-    fontSize: 20,
+    fontSize: 15,
     marginVertical: 15,
     fontWeight: "50",
     color: '#fff',
@@ -281,7 +282,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
-    marginTop: 15,
+    marginTop: 5,
     marginLeft: 65,
     marginRight: 65
   },

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { auth, database } from '../firebase'; // Make sure to import your Firebase setup
-import { ref, remove } from 'firebase/database';
+import { ref, remove, get } from 'firebase/database';
 import { useNavigation } from '@react-navigation/native'; // For navigation to the Registration screen
 
 export default function DeleteAcc({ modalVisible, setModalVisible }) {
@@ -9,32 +9,50 @@ export default function DeleteAcc({ modalVisible, setModalVisible }) {
   const navigation = useNavigation();
 
   // Function to delete the user account
-  const handleDeleteAccount = async () => {
-    const user = auth.currentUser;
-    if (user) {
-      setLoading(true);
-      try {
-        // Step 1: Remove user data from Firebase Database
-        const userRef = ref(database, 'users/' + user.uid);
-        await remove(userRef);
+const handleDeleteAccount = async () => {
+  const user = auth.currentUser;
+  if (user) {
+    setLoading(true);
+    try {
+      // Step 1: Check if user data exists in Firebase Database before trying to delete
+      const userRef = ref(database, 'users/' + user.uid);
+      const userSnapshot = await get(userRef);
+      console.log('Current user ID:', auth.currentUser?.uid);
 
-        // Step 2: Delete the user from Firebase Authentication
-        await user.delete();
-
+      if (!userSnapshot.exists()) {
         setLoading(false);
-        Alert.alert('Account Deleted', 'Your account has been successfully deleted.');
-
-        // Redirect to the Registration screen after deletion
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Registration' }], // Change 'Registration' to your registration screen name
-        });
-      } catch (error) {
-        setLoading(false);
-        Alert.alert('Error', error.message);
+        Alert.alert('Error', 'User data not found in database.');
+        return; // Exit if no data is found
       }
+
+      // Log the data found (optional, but useful for debugging)
+      console.log('User data found for deletion:', userSnapshot.val());
+
+      // Step 2: Remove user data from Firebase Database
+      await remove(userRef);
+      console.log('User data successfully deleted from database');
+
+      // Step 3: Delete the user from Firebase Authentication
+      await user.delete();
+      console.log('User successfully deleted from Firebase Authentication');
+
+      setLoading(false);
+      Alert.alert('Account Deleted', 'Your account has been successfully deleted.');
+
+      // Redirect to the Registration screen after deletion
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Registration' }], // Change 'Registration' to your registration screen name
+      });
+    } catch (error) {
+      setLoading(false);
+      console.error('Error deleting user:', error); // Log error for debugging
+      Alert.alert('Error', error.message); // Display the error message
     }
-  };
+  } else {
+    Alert.alert('Error', 'No user is currently signed in.');
+  }
+};
 
   return (
     <Modal

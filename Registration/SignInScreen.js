@@ -6,6 +6,7 @@ import { auth } from '../firebase';
 import { getDatabase, ref, child, get } from 'firebase/database'; // Import Realtime Database methods
 import { database } from '../firebase'; // Adjust the path according to your file structure
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SignInScreen({ navigateToSignUp }) {
 
@@ -72,9 +73,10 @@ export default function SignInScreen({ navigateToSignUp }) {
         setModalMessage(`Welcome back, ${user.displayName || trimmedName}`);
         setModalVisible(true);
         // 3-second loading timer
-        setTimeout(() => {
+        setTimeout(async () => {
           setLoading(false); // Hide loading
           setModalVisible(false); // Hide the modal
+          await AsyncStorage.removeItem('loggedOut'); // Clear the loggedOut flag
           navigation.replace('Home'); // Navigate to the next screen
         }, 2000);
         
@@ -192,7 +194,7 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: 'center',
-    paddingTop: 135
+    paddingTop: 160
   },
   maintext: {
     color: '#fff',
@@ -206,8 +208,9 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     borderWidth: 1,
     borderRadius: 10, 
+    borderColor: 'rgba(255, 255, 255, 0.5)',
     justifyContent: 'center',
-    marginTop: 50,
+    marginTop: 30,
     paddingTop: 20,
     paddingBottom: 30
   },
@@ -234,7 +237,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#fff',
     height: 20,
-    fontSize: 20,
+    fontSize: 15,
     marginVertical: 15,
     fontWeight: "50",
     color: '#fff',

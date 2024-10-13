@@ -1,19 +1,28 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Text, Animated, ScrollView, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
-import { auth } from '../firebase'; // Authentication
+import { auth, database } from '../firebase'; // Authentication
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createStackNavigator } from '@react-navigation/stack';
 import ConfettiCannon from 'react-native-confetti-cannon';
+import { onValue, set, push, ref as dRef } from 'firebase/database';
 
-import { fetchUserName, handleSubmitReport, handlePasswordReset } from '../Settings/ProfileHelpers';
 import UserPanel from '../Settings/UserPanel';
 import OptionList from '../Settings/OptionList';
 import BugReportModal from '../Settings/BugReportModal';
 import ResetPass from '../Settings/ResetPass';
 import DeleteAcc from '../Settings/DeleteAcc';
 
-export default function Profile({ onClose }) {
-  const [name, setArtistName] = useState('');
+const Stack = createStackNavigator();
+
+export default function Profile({ 
+  handleLogout,
+  fetchUserNameProfile,
+  handlePasswordReset,
+  name,
+  setArtistName
+ }) {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(true);
   const [resetModalVisible, setResetModalVisible] = useState(false);
@@ -26,6 +35,29 @@ export default function Profile({ onClose }) {
   const navigation = useNavigation();
 
   const [showConfetti, setShowConfetti] = useState(false);
+
+  const handleSubmitReport = async (bugReport, setBugReport) => {
+    if (!bugReport) {
+      Alert.alert('Error', 'Please enter a valid report before sending.');
+      return;
+    }
+    try {
+      const result = await MailComposer.composeAsync({
+        subject: 'LeakedBit: Bug Report',
+        recipients: ['kozcontakt@gmail.com'],
+        body: bugReport,
+        isHtml: true,
+      });
+  
+      if (result.status === MailComposer.MailComposerStatus.SENT) {
+        setBugReport('');
+      } else {
+        Alert.alert('Report', 'Action cancelled.');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'An unexpected error occurred while sending the report.');
+    }
+  };
 
   // Function to trigger confetti
   const triggerConfetti = () => {
@@ -48,7 +80,7 @@ export default function Profile({ onClose }) {
   }, [animatedValue]);
 
   useEffect(() => {
-    fetchUserName(setArtistName, setLoading);
+    fetchUserNameProfile(setArtistName, setLoading);
   }, []);
 
   useEffect(() => {
@@ -81,7 +113,7 @@ export default function Profile({ onClose }) {
 
           <TouchableOpacity 
               style={{backgroundColor: 'rgba(79, 93, 114, 0.91)', height: 50, width: '99%', alignSelf: 'center', marginBottom: 3}}
-              onPress={() => navigation.replace('Registration')}
+              onPress={handleLogout}
               >
               <View style={{flexDirection: 'row', alignSelf: 'center', marginTop: 10}}>
                   <Image 

@@ -1,14 +1,30 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Text } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getAuth } from 'firebase/auth';
 
 export default function LoadingScreen({ navigation }) {
 
   useEffect(() => {
-    // Set a timeout of 3 seconds before redirecting to 'Home'
+    const checkAuthStatus = async () => {
+      const auth = getAuth();
+      const user = auth.currentUser; // Check if there's a logged-in user
+      const loggedOut = await AsyncStorage.getItem('loggedOut'); // Check if the user manually logged out
+
+      // If there's a user and they haven't logged out manually, go to 'Home'
+      if (user && !loggedOut) {
+        navigation.replace('Home');
+      } else {
+        // Otherwise, go to 'Registration'
+        navigation.replace('Registration');
+      }
+    };
+
+    // Set a timeout of 1.5 seconds before checking authentication status
     const timer = setTimeout(() => {
-      navigation.replace('Registration'); // 'replace' to avoid going back to this screen
-    }, 3000); // 3000 ms = 3 seconds
+      checkAuthStatus();
+    }, 1500);
 
     // Clean up the timer if the component unmounts before the time is up
     return () => clearTimeout(timer);
@@ -17,7 +33,7 @@ export default function LoadingScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.maintext}>LeakedBit</Text>
-      <Text style={{color: '#fff'}}>dev version</Text>
+      <Text style={{color: '#fff', fontSize: 16}}>v0.2 - dev edition</Text>
       <StatusBar style="auto" />
     </View>
   );
@@ -32,7 +48,8 @@ const styles = StyleSheet.create({
   },
   maintext: {
     color: '#fff',
-    fontSize: 32,
-    fontWeight: 'bold'
+    fontSize: 45,
+    fontWeight: 'bold',
+    marginTop: -70
   }
 });
